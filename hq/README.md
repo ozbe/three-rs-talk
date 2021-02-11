@@ -1,3 +1,7 @@
+# hq
+
+Query HTML with CSS selectors
+
 ```
-cargo eval hq 'h1' < example.html
+$ ./hq.crs 'h1' < example.html
 ```

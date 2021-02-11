@@ -1,0 +1,57 @@
+#!/usr/bin/env -S cargo eval --
+//! 
+//!
+//! ```cargo
+//! [dependencies]
+//! kube = "0.49.0"
+//! kube-runtime = "0.49.0"
+//! k8s-openapi = { version = "0.11.0", default-features = false, features = ["v1_20"] }
+//! structopt = "0.3.12"
+//! tokio = { version = "1.0.1", features = ["macros", "rt-multi-thread"] }
+//! webbrowser = "0.5.5"
+//! ```
+use std::error::Error;
+use k8s_openapi::api::core::v1::Service;
+use kube::{Api, Client};
+use structopt::StructOpt;
+
+#[derive(Debug, StructOpt)]
+/// Open browser to Kubernetes Ingress IP
+struct Args {
+    /// Service
+    service: String,
+    /// Namespace
+    #[structopt(default_value = "default", long)]
+    namespace: String,
+}
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+  let Args {
+    service,
+    namespace,
+  } = Args::from_args();
+
+  let ip = get_ingress_ip(&service, &namespace).await?;
+  open(ip)
+}
+
+async fn get_ingress_ip(service: &str, namespace: &str) -> Result<String, Box<dyn Error>> {
+  let client = Client::try_default().await?;
+  let svcs: Api<Service> = Api::namespaced(client, namespace);
+  let svc = svcs.get(service).await?;
+
+  svc.status.as_ref()
+    .and_then(|status| status.load_balancer.as_ref())
+    .and_then(|lbs| lbs.ingress.as_ref())
+    .and_then(|l| l.first())
+    .and_then(|i| i.ip.clone())
+    .ok_or("Unable to determine ingress ip")
+    .map_err(|e| e.into())
+}
+
+fn open(ip: String) -> Result<(), Box<dyn Error>> {
+  webbrowser::open(&format!("http://{}/", ip))
+    .map(|_| ())
+    .map_err(|e| e.into())
+}

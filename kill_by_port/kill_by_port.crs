@@ -1,9 +1,6 @@
 #!/usr/bin/env -S cargo eval --
 use std::process::Command;
 
-// lsof -i :[PORT]
-// kill -9 [PID]
-
 fn main() {
   let port = std::env::args().nth(1)
     .and_then(|p| p.parse().ok())
