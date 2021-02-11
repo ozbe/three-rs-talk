@@ -1,0 +1,25 @@
+#!/usr/bin/env -S cargo eval --
+//! hq
+//! 
+//! ```cargo
+//! [dependencies]
+//! actix-web = "3"
+//! env_logger = "0.8"
+//! ```
+use actix_web::{get, App, HttpServer, Responder};
+
+#[get("/")]
+async fn index() -> impl Responder {
+    "Hello, world!"
+}
+
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    std::env::set_var("RUST_LOG", "actix_web=info");
+    env_logger::init();
+
+    HttpServer::new(|| App::new().service(index))
+        .bind("127.0.0.1:4000")?
+        .run()
+        .await
+}

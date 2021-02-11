@@ -1,0 +1,47 @@
+#!/usr/bin/env -S cargo eval --
+use std::process::Command;
+
+// lsof -i :[PORT]
+// kill -9 [PID]
+
+fn main() {
+  let port = std::env::args().nth(1)
+    .and_then(|p| p.parse().ok())
+    .expect("Invalid port argument");
+
+  let pid = get_pid(port);
+  kill(pid);
+  println!("Killed {}", pid);
+}
+
+fn get_pid(port: u16) -> u16 {
+  let output = run("lsof", &["-i", &format!(":{}", port)]);
+  
+  for line in output.lines() {
+    if line.contains("LISTEN") {
+      return line.split_whitespace()
+        .nth(1)
+        .map(|p| p.parse().expect("Invalid pid"))
+        .expect("Unable to determine process pid")
+    }
+  }
+
+  panic!("Unable to find process");
+}
+
+fn kill(pid: u16) {
+  run("kill", &["-9", &pid.to_string()]);
+}
+
+fn run(cmd: &str, args: &[&str]) -> String {
+  let output = Command::new(cmd)
+      .args(args)
+      .output()
+      .expect(&format!("failed to execute {}", cmd));
+
+  if !output.status.success() {
+    panic!(format!("{} failed", cmd));
+  }
+
+  String::from_utf8_lossy(&output.stdout).to_string()
+}
