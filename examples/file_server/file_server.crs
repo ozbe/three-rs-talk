@@ -1,0 +1,36 @@
+#!/usr/bin/env -S cargo eval --
+//! file_server
+//! 
+//! ```cargo
+//! [dependencies]
+//! structopt = "0.3.12"
+//! tokio = { version = "1", features = ["full"] }
+//! warp = "0.3"
+//! ```
+use structopt::StructOpt;
+use warp::Filter;
+use std::env;
+use std::path::PathBuf;
+
+#[derive(Debug, StructOpt)]
+/// Server static files from a directory
+struct Args {
+    /// Path
+    #[structopt(parse(from_os_str))]
+    path: Option<PathBuf>,
+}
+
+#[tokio::main]
+async fn main() {
+    let path = Args::from_args()
+        .path.or(env::current_dir().ok())
+        .expect("Unable to determine path");
+
+    let route = warp::path("static")
+        .and(warp::fs::dir(path));
+
+    println!("Listening at http://127.0.0.1:3030/static/:path");
+    warp::serve(route)
+        .run(([127, 0, 0, 1], 3030))
+        .await;
+}

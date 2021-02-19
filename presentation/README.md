@@ -53,6 +53,8 @@ $ cargo run
 
 Open a terminal and enter in all of the values before the presentation
 
+Start [evcxr_jupyter](../examples/evcxr_jupyter/README.md)
+
 ### Steps
 
 ```bash
