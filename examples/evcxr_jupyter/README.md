@@ -9,4 +9,4 @@ $ docker run -p 8888:8888 -v $(pwd)/work:/home/jovyan/work ozbe/evcxr_jupyter
 
 ## References
 
-* [Interactive Rust in a REPL and Jupyter Notebook with EVCXR](https://depth-first.com/articles/2020/09/21/interactive-rust-in-a-repl-and-jupyter-notebook-with-evcxr/)
+* [ozbe/evcxr-jupyter-docker](https://github.com/ozbe/evcxr-jupyter-docker)
