@@ -2,10 +2,15 @@
 #
 # View myapp
 #
+# Inputs
+#   $1 - service
+#
 # Dependencies
 #   open
 #   kubectl
 #
 
-SVC_IP=$(kubectl get svc myapp -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+SVC=$1
+
+SVC_IP=$(kubectl get $SVC myapp -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
 open "http://$SVC_IP/"
