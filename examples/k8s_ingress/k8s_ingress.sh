@@ -12,5 +12,5 @@
 
 SVC=$1
 
-SVC_IP=$(kubectl get $SVC myapp -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+SVC_IP=$(kubectl get svc $SVC -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
 open "http://$SVC_IP/"
